@@ -6,7 +6,8 @@ const { catchAsync } = require('../utils/catchAsync.util')
 const { AppError } = require('../utils/appError.util')
 
 const consoleExists = catchAsync(async (req, res, next) => {
-    const { id } = req.params
+    // This or (||) operator is for middleware works in createGame controller
+    const id = req.params.id || req.params.consoleId || req.body.consoleId
 
     const console = await Console.findOne({
         where: { id, status: 'active' },

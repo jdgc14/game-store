@@ -1,5 +1,6 @@
 // Models
 const { Game } = require('../models/game.model')
+const { User } = require('../models/user.model')
 const { Review } = require('../models/review.model')
 const { Console } = require('../models/console.model')
 const { GameInConsole } = require('../models/gameInConsole.model')
@@ -20,7 +21,11 @@ const getAllGames = catchAsync(async (req, res, next) => {
             },
             {
                 model: Review,
-                attributes: { exclude: ['status', 'createdAt', 'updatedAt'] },
+                attributes: ['id', 'comment'],
+                include: {
+                    model: User,
+                    attributes: ['id', 'name', 'email'],
+                },
             },
         ],
     })
@@ -32,16 +37,21 @@ const getAllGames = catchAsync(async (req, res, next) => {
 })
 
 const createGame = catchAsync(async (req, res, next) => {
-    const { title, genre } = req.body
+    const { title, genre, consoleId } = req.body
 
     const newGame = await Game.create({
         title,
         genre,
     })
 
+    const gameInConsole = await GameInConsole.create({
+        gameId: newGame.id,
+        consoleId,
+    })
+
     res.status(201).json({
         status: 'success',
-        data: { newGame },
+        data: { newGame, gameInConsole },
     })
 })
 
@@ -66,7 +76,8 @@ const deleteGameById = catchAsync(async (req, res, next) => {
 })
 
 const assignGameToConsole = catchAsync(async (req, res) => {
-    const { gameId, consoleId } = req.body
+    const { gameId } = req.body
+    const { consoleId } = req.params
 
     const gameInConsole = await GameInConsole.create({ gameId, consoleId })
 

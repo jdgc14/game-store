@@ -13,6 +13,7 @@ const { createReview } = require('../controllers/reviews.controller')
 
 // Middlewares
 const { gameExists } = require('../middlewares/games.middlewares')
+const { consoleExists } = require('../middlewares/consoles.middlewares')
 
 const { protectSession } = require('../middlewares/auth.middlewares')
 
@@ -29,7 +30,7 @@ gamesRouter.get('/', getAllGames)
 
 gamesRouter.use(protectSession)
 
-gamesRouter.post('/', createGameValidators, createGame)
+gamesRouter.post('/', consoleExists, createGameValidators, createGame)
 
 gamesRouter.patch('/:id', gameExists, updateGameValidators, updateGameById)
 
@@ -42,6 +43,6 @@ gamesRouter.post(
     createReview
 )
 
-gamesRouter.post('/consoles', assignGameToConsole)
+gamesRouter.post('/consoles/:consoleId', consoleExists, assignGameToConsole)
 
 module.exports = { gamesRouter }
